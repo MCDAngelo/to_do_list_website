@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from flask_bootstrap import Bootstrap5
 
 app = Flask(__name__)
@@ -13,6 +13,14 @@ def homepage():
 
 @app.route("/new")
 def new_list():
+    if request.method == "POST":
+        # Create list and item entries in db
+        pass
+    return render_template("new_list.html")
+
+
+@app.route("/<str:list_id>")
+def load_list():
     return render_template("new_list.html")
 
 
