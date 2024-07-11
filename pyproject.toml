@@ -1,0 +1,31 @@
+[tool.poetry]
+name = "to-do-list-website"
+version = "0.1.0"
+description = "A website to track to do lists"
+authors = ["MCDAngelo"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11.9"
+flask = "^3.0.3"
+wtforms = "^3.1.2"
+flask-wtf = "^1.2.1"
+flask-sqlalchemy = "^3.1.1"
+sqlalchemy = "^2.0.31"
+werkzeug = "^3.0.3"
+bootstrap-flask = "^2.4.0"
+flask-login = "^0.6.3"
+gunicorn = "^22.0.0"
+psycopg2 = "^2.9.9"
+
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.4.2"
+flake8 = "^7.1.0"
+isort = "^5.13.2"
+mypy = "^1.10.1"
+pylint = "^3.2.5"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
