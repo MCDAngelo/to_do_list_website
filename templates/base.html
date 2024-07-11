@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Check It Off</Title>
+  {% block styles %}
+  {{ bootstrap.load_css() }}
+  <!-- Font Awesome icons (free version)-->
+  <script src="https://kit.fontawesome.com/cfe5a22a02.js" crossorigin="anonymous"></script>
+  {% endblock %}
+</head>
+
+<body>
+  {% include "header.html" %}
+
+  {% block content %}
+  {% endblock %}
+
+  {% include "footer.html" %}
+  {% block scripts %}
+  {% endblock %}
+</body>
+
+</html>
