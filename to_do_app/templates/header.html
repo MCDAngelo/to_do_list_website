@@ -2,20 +2,20 @@
   <header
     class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
     <div class="col-md-3 mb-2 mb-md-0">
-      <a href={{ url_for("homepage") }} class="d-inline-flex link-body-emphasis text-decoration-none">
+      <a href={{ url_for("public.homepage") }} class="d-inline-flex link-body-emphasis text-decoration-none">
         <i class="fas fa-check"> </i> Check It Off
       </a>
     </div>
 
     <!-- Make this only appear to users that are logged in-->
     <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
-      <li><a href={{ url_for("new_list") }} class="nav-link px-2">Your Lists</a></li>
+      <li><a href={{ url_for("public.new_list") }} class="nav-link px-2">Your Lists</a></li>
     </ul>
 
     <!-- Only show if user is not logged in, if logged in show logout and new list buttons-->
     <div class="col-md-3 text-end">
-      <a type="button" class="btn btn-outline-primary me-2" name="login" href={{ url_for("login") }}>Login</a>
-      <a type="button" class="btn btn-primary" name="signup" href={{ url_for("register") }}>Sign-up</a>
+      <a type="button" class="btn btn-outline-primary me-2" name="login" href={{ url_for("public.login") }}>Login</a>
+      <a type="button" class="btn btn-primary" name="signup" href={{ url_for("public.register") }}>Sign-up</a>
     </div>
   </header>
 </div>

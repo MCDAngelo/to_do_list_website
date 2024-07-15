@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% from "bootstrap5/form.html" import render_field %}
+
+{% block content %}
+<form action="{{ url_for('public.add_new_item', list_id=list_id) }}" method="POST">
+  <div class="container">
+    <div class="row">
+      {{ new_item_form.hidden_tag() }}
+      <div class="col-auto ms-5 pt-4">
+        {{ render_field(new_item_form.completed, style="zoom:2.5")}}
+      </div>
+      <div class="col-sm-8 pt-3">
+        {{ render_field(new_item_form.description, new_item_form_type="inline", class="border-0", style="font-size:2.5rem", placeholder="Start Typing") }}
+      </div>
+      <div class="col-auto">
+        {{ render_field(new_item_form.starred)}}
+        <label for="starred"><h3><i class="fas fa-star" style={% if new_item_form.starred.data %} "color:yellow" {% else %} "color:grey" {% endif %}></i></h3></label>
+      </div>
+      <div class="col-auto">
+        {{ render_field(new_item_form.tagged_color)}}
+        <label for="tagged_color"><h3><i class="fas fa-tag" style="color:grey"></i></h3></label>
+      </div>
+      <div class="col-auto">
+        {{ render_field(new_item_form.deleted)}}
+        <label for="deleted"><h3><i class="fas fa-trash-alt" style="color:grey"></i></h3></label>
+      </div>
+    </div>
+  </div>
+  </form>
+
+{% for list_item in existing_items %}
+{% with item_id = list_item.id.data %}
+<form action="{{ url_for('public.update_item', list_id=list_id, item_id=item_id) }}" name="{{ item_id }}" method="POST">
+  <div class="container">
+    <div class="row">
+      {{ list_item.hidden_tag() }}
+      <div class="col-auto ms-5 pt-4">
+        {{ render_field(list_item.completed, style="zoom:2.5")}}
+      </div>
+      <div class="col-sm-8 pt-3">
+        {{ render_field(list_item.description, new_item_form_type="inline", class="border-0", style="font-size:2.5rem", placeholder="Start Typing") }}
+      </div>
+      <div class="col-auto">
+        {{ render_field(list_item.starred)}}
+        <label for="starred"><h3><i class="fas fa-star" style={% if list_item.starred.data %} "color:yellow" {% else %} "color:grey" {% endif %}></i></h3></label>
+      </div>
+      <div class="col-auto">
+        {{ render_field(list_item.tagged_color)}}
+        <label for="tagged_color"><h3><i class="fas fa-tag" style="color:grey"></i></h3></label>
+      </div>
+      <div class="col-auto">
+        {{ render_field(list_item.deleted)}}
+        <label for="deleted"><h3><i class="fas fa-trash-alt" style="color:grey"></i></h3></label>
+      </div>
+    </div>
+  </div>
+</form>
+{% endwith %}
+{% endfor %}
+
+
+{% endblock %}

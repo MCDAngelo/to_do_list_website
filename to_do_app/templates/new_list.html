@@ -1,10 +1,30 @@
 {% extends "base.html" %}
+{% from "bootstrap5/form.html" import render_field %}
 
 {% block content %}
-<form method="post">
+<form method="POST" action={{ url_for("public.new_list") }}>
   <div class="container">
-    <input class="form-control form-control-lg" type="text" placeholder="Start typing ..."
-      aria-label=".form-control-lg example">
+    <div class="row">
+      {{ form.hidden_tag() }}
+      <div class="col-auto ms-5 pt-4">
+        {{ render_field(form.completed, style="zoom:2.5")}}
+      </div>
+      <div class="col-sm-8 pt-3">
+        {{ render_field(form.description, form_type="inline", class="border-0", style="font-size:2.5rem", placeholder="Start Typing") }}
+      </div>
+      <div class="col-auto">
+        {{ render_field(form.starred)}}
+        <label for="starred"><h3><i class="fas fa-star" style={% if form.starred.data %} "color:yellow" {% else %} "color:grey" {% endif %}></i></h3></label>
+      </div>
+      <div class="col-auto">
+        {{ render_field(form.tagged_color)}}
+        <label for="tagged_color"><h3><i class="fas fa-tag" style="color:grey"></i></h3></label>
+      </div>
+      <div class="col-auto">
+        {{ render_field(form.deleted)}}
+        <label for="deleted"><h3><i class="fas fa-trash-alt" style="color:grey"></i></h3></label>
+      </div>
+    </div>
   </div>
 
 </form>
