@@ -9,48 +9,45 @@
       <div class="col-auto ms-5 pt-4">
         {{ render_field(new_item_form.completed, style="zoom:2.5")}}
       </div>
-      <div class="col-sm-8 pt-3">
-        {{ render_field(new_item_form.description, new_item_form_type="inline", class="border-0", style="font-size:2.5rem", placeholder="Start Typing") }}
+      <div class="col-sm-8">
+        {{ render_field(new_item_form.description, placeholder='Start Typing') }}
       </div>
-      <div class="col-auto">
-        {{ render_field(new_item_form.starred)}}
-        <label for="starred"><h3><i class="fas fa-star" style={% if new_item_form.starred.data %} "color:yellow" {% else %} "color:grey" {% endif %}></i></h3></label>
-      </div>
-      <div class="col-auto">
-        {{ render_field(new_item_form.tagged_color)}}
-        <label for="tagged_color"><h3><i class="fas fa-tag" style="color:grey"></i></h3></label>
-      </div>
-      <div class="col-auto">
-        {{ render_field(new_item_form.deleted)}}
-        <label for="deleted"><h3><i class="fas fa-trash-alt" style="color:grey"></i></h3></label>
-      </div>
+      <!-- <div class="col-auto pt-4"> -->
+      <!--   <button type="button" name="new_starred" class="btn btn-outline"><i class="fas fa-star" styler="color:grey"></i></button> -->
+      <!-- </div> -->
     </div>
   </div>
   </form>
 
 {% for list_item in existing_items %}
 {% with item_id = list_item.id.data %}
-<form action="{{ url_for('public.update_item', list_id=list_id, item_id=item_id) }}" name="{{ item_id }}" method="POST">
+<form method="POST" formaction="{{ url_for('public.update_item', list_id=list_id, item_id=item_id) }}">
   <div class="container">
     <div class="row">
       {{ list_item.hidden_tag() }}
       <div class="col-auto ms-5 pt-4">
-        {{ render_field(list_item.completed, style="zoom:2.5")}}
+        {{ render_field(list_item.completed, style="zoom:2.5") }}
       </div>
-      <div class="col-sm-8 pt-3">
-        {{ render_field(list_item.description, new_item_form_type="inline", class="border-0", style="font-size:2.5rem", placeholder="Start Typing") }}
+      <div class="col-sm-7">
+        {{ render_field(list_item.description) }}
       </div>
-      <div class="col-auto">
-        {{ render_field(list_item.starred)}}
-        <label for="starred"><h3><i class="fas fa-star" style={% if list_item.starred.data %} "color:yellow" {% else %} "color:grey" {% endif %}></i></h3></label>
+      <div class="col-auto pt-4">
+        <button type="submit" name="save_button" value="x" class="btn btn-success" formaction="{{ url_for('public.update_item', list_id=list_id, item_id=item_id)}}">
+          <i class="fas fa-save"></i>
+        </button>
       </div>
-      <div class="col-auto">
-        {{ render_field(list_item.tagged_color)}}
-        <label for="tagged_color"><h3><i class="fas fa-tag" style="color:grey"></i></h3></label>
+      <div class="col-auto pt-4">
+        <button type="submit" name="starred" class="btn btn-outline" formaction="{{ url_for('public.star_item', list_id=list_id, item_id=item_id) }}">
+          <i class="fas fa-star" {% if list_item.starred.data == True: %} style="color:goldenrod"{% else %} style="color:grey"{% endif %}></i>
+        </button>
       </div>
-      <div class="col-auto">
-        {{ render_field(list_item.deleted)}}
-        <label for="deleted"><h3><i class="fas fa-trash-alt" style="color:grey"></i></h3></label>
+      <div class="col-auto pt-4">
+        {{ render_field(list_item.tagged_color) }}
+      </div>
+      <div class="col-auto pt-4">
+        <button type="submit" name="delete_button" value="x" class="btn btn-danger" formaction="{{ url_for('public.delete_item', list_id=list_id, item_id=item_id)}}">
+          <i class="fas fa-trash-alt"></i>
+        </button>
       </div>
     </div>
   </div>

@@ -26,7 +26,7 @@ def new_list():
             description=new_list_form.description.data,
             list=new_list,
             list_order=0,
-            # fill in if completed, starred, etc
+            starred=new_list_form.new_starred.data,
         )
         new_list.items.append(new_item)
         db.session.add(new_list)
@@ -46,10 +46,14 @@ def load_list(list_id):
         .all()
     )
     new_list_form = NewItem()
+    new_list_form.prefix = "new_item"
     item_forms = []
     for item in items:
         item_form = ExistingItem(obj=item)
+        item_form.prefix = item.id
+        item_form.starred.value = True if item.starred else False
         item_forms.append(item_form)
+
     return render_template(
         "active_list.html",
         new_item_form=new_list_form,
@@ -69,24 +73,37 @@ def add_new_item(list_id):
                 id=uuid4().hex,
                 description=form.description.data,
                 completed=form.completed.data,
-                starred=form.starred.data,
-                tagged_color=form.tagged_color.data,
                 list=item_list,
             )
-            item_list.items.append(new_item)
             db.session.add(new_item)
+            item_list.items.append(new_item)
             db.session.commit()
     return redirect(url_for("public.load_list", list_id=list_id))
 
 
 @blueprint.route("/update_item/<string:list_id>/<string:item_id>/", methods=["POST"])
 def update_item(list_id, item_id):
-    if request.method == "POST":
-        item = db.get_or_404(ToDoItem, item_id)
-        form = ExistingItem(obj=item)
-        if form.validate():
-            form.populate_obj(item)
-            db.session.commit()
+    item = db.get_or_404(ToDoItem, item_id)
+    print("item description from form")
+    print(request.form.get("description"))
+    item.description = request.form.get("description")
+    db.session.commit()
+    return redirect(url_for("public.load_list", list_id=list_id))
+
+
+@blueprint.route("/delete_item/<string:list_id>/<string:item_id>/", methods=["POST"])
+def delete_item(list_id, item_id):
+    item = db.get_or_404(ToDoItem, item_id)
+    db.session.delete(item)
+    db.session.commit()
+    return redirect(url_for("public.load_list", list_id=list_id))
+
+
+@blueprint.route("/star_item/<string:list_id>/<string:item_id>/", methods=["POST"])
+def star_item(list_id, item_id):
+    item = db.get_or_404(ToDoItem, item_id)
+    item.starred = False if item.starred else True
+    db.session.commit()
     return redirect(url_for("public.load_list", list_id=list_id))
 
 

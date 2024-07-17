@@ -6,23 +6,14 @@
   <div class="container">
     <div class="row">
       {{ form.hidden_tag() }}
-      <div class="col-auto ms-5 pt-4">
+      <div class="col-auto ms-5 pt-2">
         {{ render_field(form.completed, style="zoom:2.5")}}
       </div>
-      <div class="col-sm-8 pt-3">
+      <div class="col-sm-9">
         {{ render_field(form.description, form_type="inline", class="border-0", style="font-size:2.5rem", placeholder="Start Typing") }}
       </div>
-      <div class="col-auto">
-        {{ render_field(form.starred)}}
-        <label for="starred"><h3><i class="fas fa-star" style={% if form.starred.data %} "color:yellow" {% else %} "color:grey" {% endif %}></i></h3></label>
-      </div>
-      <div class="col-auto">
-        {{ render_field(form.tagged_color)}}
-        <label for="tagged_color"><h3><i class="fas fa-tag" style="color:grey"></i></h3></label>
-      </div>
-      <div class="col-auto">
-        {{ render_field(form.deleted)}}
-        <label for="deleted"><h3><i class="fas fa-trash-alt" style="color:grey"></i></h3></label>
+      <div class="col-auto pt-3">
+        <button type="submit" name="new_starred" class="btn btn-outline"><i class="fas fa-star" styler="color:grey"></i></button>
       </div>
     </div>
   </div>
