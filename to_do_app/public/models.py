@@ -14,6 +14,7 @@ class ToDoList(db.Model):
     )
     title: Mapped[str] = mapped_column(String(100), nullable=True, unique=False)
     items: Mapped[List["ToDoItem"]] = relationship(back_populates="list")
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime, nullable=False)
     # to add in: user
 
 
@@ -22,6 +23,8 @@ class ToDoItem(db.Model):
     id: Mapped[str] = mapped_column(
         String, primary_key=True, nullable=False, unique=True
     )
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime, nullable=False)
+    last_updated: Mapped[dt.datetime] = mapped_column(DateTime, nullable=False)
     description: Mapped[str] = mapped_column(String, nullable=False)
     list_id: Mapped[str] = mapped_column(ForeignKey("lists.id"))
     list: Mapped["ToDoList"] = relationship(back_populates="items")

@@ -58,3 +58,14 @@ class ExistingItem(FlaskForm):
     delete = SubmitField(
         "X",
     )
+
+
+class ListTitle(FlaskForm):
+    list_title = StringField(
+        "",
+        render_kw={
+            "style": "font-size:3.0rem",
+            "class": "border-0",
+        },
+        validators=[DataRequired(), Length(min=1, max=750)],
+    )

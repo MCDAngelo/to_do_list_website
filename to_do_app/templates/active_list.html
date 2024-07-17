@@ -2,6 +2,14 @@
 {% from "bootstrap5/form.html" import render_field %}
 
 {% block content %}
+<form action="{{ url_for('public.update_list_title', list_id=list_id) }}" method="POST">
+  {{ title_form.hidden_tag()}}
+  <div class="container">
+    <div class="row">
+      {{ render_field(title_form.list_title) }}
+    </div>
+  </div>
+</form>
 <form action="{{ url_for('public.add_new_item', list_id=list_id) }}" method="POST">
   <div class="container">
     <div class="row">
