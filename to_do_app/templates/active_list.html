@@ -36,17 +36,17 @@
       <div class="col-auto ms-5 pt-4">
         {{ render_field(list_item.completed, style="zoom:2.5") }}
       </div>
-      <div class="col-sm-7">
+      <div class="col-sm-8">
         {{ render_field(list_item.description) }}
       </div>
-      <div class="col-auto pt-4">
-        <button type="submit" name="save_button" value="x" class="btn btn-success" formaction="{{ url_for('public.update_item', list_id=list_id, item_id=item_id)}}">
+      <div class="col-sm-1 pt-4">
+        <button type="submit" name="save_button" hidden value="x" class="btn btn-success" formaction="{{ url_for('public.update_item', list_id=list_id, item_id=item_id)}}">
           <i class="fas fa-save"></i>
         </button>
       </div>
       <div class="col-auto pt-4">
         <button type="submit" name="starred" class="btn btn-outline" formaction="{{ url_for('public.star_item', list_id=list_id, item_id=item_id) }}">
-          <i class="fas fa-star" {% if list_item.starred.data == True: %} style="color:goldenrod"{% else %} style="color:grey"{% endif %}></i>
+          <h3><i class="fas fa-star" {% if list_item.starred.data == True: %} style="color:goldenrod"{% else %} style="color:grey"{% endif %}></i></h3>
         </button>
       </div>
       <div class="col-auto pt-4">
