@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from markupsafe import Markup
-from wtforms import BooleanField, StringField, SubmitField
+from wtforms import BooleanField, IntegerField, StringField, SubmitField
 from wtforms.validators import DataRequired, Length
 
 starred_label = Markup('<h2><i class="fas fa-star"></i></h2>')
@@ -29,6 +29,7 @@ class NewItem(FlaskForm):
 
 class ExistingItem(FlaskForm):
     id = StringField(validators=[DataRequired()])
+    position = IntegerField(validators=[DataRequired()])
     completed = BooleanField("", render_kw={"class": "form-check-input"})
     description = StringField(
         "",
@@ -42,8 +43,7 @@ class ExistingItem(FlaskForm):
         label=starred_label,
         default=False,
         render_kw={
-            "style": "opacity:0",
-            "class": "starred_check",
+            # "style": "opacity:0",
         },
     )
     # Make this a ColorField
@@ -55,9 +55,9 @@ class ExistingItem(FlaskForm):
         },
     )
     save = SubmitField("save_button")
-    delete = SubmitField(
-        "X",
-    )
+    move_up = SubmitField("move_up")
+    move_down = SubmitField("move_down")
+    delete = SubmitField("X")
 
 
 class ListTitle(FlaskForm):

@@ -28,7 +28,7 @@ def new_list():
             id=uuid4().hex,
             description=new_list_form.description.data,
             list=new_list,
-            list_order=0,
+            position=0,
             starred=new_list_form.new_starred.data,
             created_at=ts,
             last_updated=ts,
@@ -47,7 +47,11 @@ def load_list(list_id):
     to_do_list = db.get_or_404(ToDoList, list_id)
     list_title_form = ListTitle(list_title=to_do_list.title)
     items = (
-        db.session.execute(db.select(ToDoItem).where(ToDoItem.list_id == list_id))
+        db.session.execute(
+            db.select(ToDoItem)
+            .where(ToDoItem.list_id == list_id)
+            .order_by(ToDoItem.position)
+        )
         .scalars()
         .all()
     )
@@ -77,11 +81,13 @@ def add_new_item(list_id):
         if form.validate():
             ts = dt.datetime.now()
             item_list = db.get_or_404(ToDoList, list_id)
+            n_items = len(item_list.items)
             new_item = ToDoItem(  # type: ignore[call-arg]
                 id=uuid4().hex,
                 description=form.description.data,
                 completed=form.completed.data,
                 list=item_list,
+                position=n_items,
                 created_at=ts,
                 last_updated=ts,
             )
@@ -122,6 +128,32 @@ def update_list_title(list_id):
     to_do_list = db.get_or_404(ToDoList, list_id)
     print(request.form)
     to_do_list.title = request.form.get("list_title")
+    db.session.commit()
+    return redirect(url_for("public.load_list", list_id=list_id))
+
+
+@blueprint.route(
+    "/move_item/<string:list_id>/<string:item_id>/<string:direction>", methods=["POST"]
+)
+def move_item(list_id, item_id, direction):
+    print(f"moving item {item_id} {direction} one spot")
+    if direction == "up":
+        adj = -1
+    elif direction == "down":
+        adj = 1
+    ts = dt.datetime.now()
+    selected_item = db.get_or_404(ToDoItem, item_id)
+    original_position = selected_item.position
+    new_position = original_position + adj
+    swapped_item = db.session.execute(
+        db.select(ToDoItem).where(
+            (ToDoItem.list_id == list_id) & (ToDoItem.position == new_position)
+        )
+    ).scalar()
+    selected_item.position = new_position
+    selected_item.last_updated = ts
+    swapped_item.position = original_position
+    swapped_item.last_updated = ts
     db.session.commit()
     return redirect(url_for("public.load_list", list_id=list_id))
 

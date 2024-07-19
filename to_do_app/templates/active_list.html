@@ -20,9 +20,6 @@
       <div class="col-sm-8">
         {{ render_field(new_item_form.description, placeholder='Start Typing') }}
       </div>
-      <!-- <div class="col-auto pt-4"> -->
-      <!--   <button type="button" name="new_starred" class="btn btn-outline"><i class="fas fa-star" styler="color:grey"></i></button> -->
-      <!-- </div> -->
     </div>
   </div>
   </form>
@@ -36,7 +33,7 @@
       <div class="col-auto ms-5 pt-4">
         {{ render_field(list_item.completed, style="zoom:2.5") }}
       </div>
-      <div class="col-sm-8">
+      <div class="col-sm-6">
         {{ render_field(list_item.description) }}
       </div>
       <div class="col-sm-1 pt-4">
@@ -51,6 +48,16 @@
       </div>
       <div class="col-auto pt-4">
         {{ render_field(list_item.tagged_color) }}
+      </div>
+      <div class="col-auto pt-4">
+        <button type="submit" name="move_up" {% if list_item.position.data == 0: %} disabled {% endif %} class="btn btn-outline border-0" formaction="{{ url_for('public.move_item', list_id=list_id, item_id=item_id, direction='up') }}">
+          <h3><i class="fas fa-arrow-circle-up" style="color:grey"></i></h3>
+        </button>
+      </div>
+      <div class="col-auto pt-4">
+        <button type="submit" name="move_down" {% if list_item.position.data == ((existing_items|length)-1): %} disabled {% endif %} class="btn btn-outline border-0" formaction="{{ url_for('public.move_item', list_id=list_id, item_id=item_id, direction='down') }}">
+          <h3><i class="fas fa-arrow-circle-down" style="color:grey"></i></h3>
+        </button>
       </div>
       <div class="col-auto pt-4">
         <button type="submit" name="delete_button" value="x" class="btn btn-danger" formaction="{{ url_for('public.delete_item', list_id=list_id, item_id=item_id)}}">

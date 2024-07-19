@@ -28,7 +28,7 @@ class ToDoItem(db.Model):
     description: Mapped[str] = mapped_column(String, nullable=False)
     list_id: Mapped[str] = mapped_column(ForeignKey("lists.id"))
     list: Mapped["ToDoList"] = relationship(back_populates="items")
-    list_order: Mapped[int] = mapped_column(Integer, nullable=True)
+    position: Mapped[int] = mapped_column(Integer, nullable=True)
     completed: Mapped[bool] = mapped_column(Boolean, nullable=True)
     starred: Mapped[bool] = mapped_column(Boolean, nullable=True)
     tagged_color: Mapped[str] = mapped_column(String, nullable=True)
