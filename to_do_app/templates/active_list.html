@@ -33,7 +33,7 @@
       <div class="col-auto ms-5 pt-4">
         {{ render_field(list_item.completed, style="zoom:2.5") }}
       </div>
-      <div class="col-sm-6">
+      <div class="col-sm-7">
         {{ render_field(list_item.description) }}
       </div>
       <div class="col-sm-1 pt-4">
@@ -47,16 +47,13 @@
         </button>
       </div>
       <div class="col-auto pt-4">
-        {{ render_field(list_item.tagged_color) }}
-      </div>
-      <div class="col-auto pt-4">
         <button type="submit" name="move_up" {% if list_item.position.data == 0: %} disabled {% endif %} class="btn btn-outline border-0" formaction="{{ url_for('public.move_item', list_id=list_id, item_id=item_id, direction='up') }}">
-          <h3><i class="fas fa-arrow-circle-up" style="color:grey"></i></h3>
+          <h3><i class="fas fa-arrow-circle-up" style="color:green"></i></h3>
         </button>
       </div>
       <div class="col-auto pt-4">
         <button type="submit" name="move_down" {% if list_item.position.data == ((existing_items|length)-1): %} disabled {% endif %} class="btn btn-outline border-0" formaction="{{ url_for('public.move_item', list_id=list_id, item_id=item_id, direction='down') }}">
-          <h3><i class="fas fa-arrow-circle-down" style="color:grey"></i></h3>
+          <h3><i class="fas fa-arrow-circle-down" style="color:orange"></i></h3>
         </button>
       </div>
       <div class="col-auto pt-4">

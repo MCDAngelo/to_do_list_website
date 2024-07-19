@@ -38,7 +38,6 @@ def new_list():
         db.session.add(new_item)
         db.session.commit()
         return redirect(url_for("public.load_list", list_id=new_list.id))
-        # Create list and item entries in db
     return render_template("new_list.html", form=new_list_form)
 
 

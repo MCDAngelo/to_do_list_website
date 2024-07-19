@@ -31,5 +31,3 @@ class ToDoItem(db.Model):
     position: Mapped[int] = mapped_column(Integer, nullable=True)
     completed: Mapped[bool] = mapped_column(Boolean, nullable=True)
     starred: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    tagged_color: Mapped[str] = mapped_column(String, nullable=True)
-    due_date: Mapped[dt.datetime] = mapped_column(DateTime, nullable=True)
