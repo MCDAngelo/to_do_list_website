@@ -1,10 +1,13 @@
 import datetime as dt
 from uuid import uuid4
-from flask import Blueprint, redirect, render_template, request, url_for
+from flask import Blueprint, redirect, render_template, request, session, url_for
+from werkzeug.security import generate_password_hash
 
 from to_do_app.public.models import ToDoList, ToDoItem
 from to_do_app.public.forms import ExistingItem, ListTitle, NewItem
 from to_do_app.database import db
+from to_do_app.user.forms import RegistrationForm
+from to_do_app.user.models import User
 
 blueprint = Blueprint("public", __name__)
 
@@ -19,10 +22,15 @@ def new_list():
     new_list_form = NewItem()
     if request.method == "POST":
         ts = dt.datetime.now().replace(microsecond=0)
+        new_user = User(  # type: ignore[call-arg]
+            id=uuid4().hex,
+            created_at=ts,
+        )
         new_list = ToDoList(  # type: ignore[call-arg]
             id=uuid4().hex,
             title=f"My List - {ts}",
             created_at=ts,
+            user_id=new_user.id,
         )
         new_item = ToDoItem(  # type: ignore[call-arg]
             id=uuid4().hex,
@@ -32,9 +40,12 @@ def new_list():
             created_at=ts,
             last_updated=ts,
         )
+        session["active_user_id"] = new_user.id
+        new_user.lists.append(new_list)
         new_list.items.append(new_item)
         db.session.add(new_list)
         db.session.add(new_item)
+        db.session.add(new_user)
         db.session.commit()
         return redirect(url_for("public.load_list", list_id=new_list.id))
     return render_template("new_list.html", form=new_list_form)
@@ -164,6 +175,36 @@ def login():
     return render_template("index.html")
 
 
-@blueprint.route("/register")
+@blueprint.route("/register/", methods=["GET", "POST"])
 def register():
-    return render_template("index.html")
+    reg_form = RegistrationForm()
+    if reg_form.validate_on_submit():
+        user_id = session.get("active_user_id", None)
+        if reg_form.password.data != reg_form.confirm_password.data:
+            # flash error
+            pass
+        email = reg_form.email.data
+        if db.session.execute(db.select(User).where(User.email == email)):
+            # flash error
+            pass
+        hashed_pswd = generate_password_hash(
+            password=reg_form.password.data,
+            method="pbkdf2:sha256",
+            salt_length=8,
+        )
+        if user_id is None:
+            new_user = User(  # type: ignore[call-arg]
+                id=uuid4().hex,
+                email=email,
+                hashed_password=hashed_pswd,
+                created_at=dt.datetime.now().replace(microsecond=0),
+            )
+            db.session.add(new_user)
+        else:
+            user = db.get_or_404(User, user_id)
+            user.email = email
+            user.hashed_password = hashed_pswd
+        db.session.commit()
+        return redirect(url_for("public.homepage"))
+
+    return render_template("registration.html", form=reg_form)

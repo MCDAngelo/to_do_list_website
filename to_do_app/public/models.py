@@ -1,10 +1,15 @@
 import datetime as dt
-from typing import List
+from typing import List, TYPE_CHECKING
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String
 
 from to_do_app.database import db
+
+if TYPE_CHECKING:
+    from to_do_app.user.models import User
+else:
+    User = "User"
 
 
 class ToDoList(db.Model):
@@ -15,7 +20,8 @@ class ToDoList(db.Model):
     title: Mapped[str] = mapped_column(String(100), nullable=True, unique=False)
     items: Mapped[List["ToDoItem"]] = relationship(back_populates="list")
     created_at: Mapped[dt.datetime] = mapped_column(DateTime, nullable=False)
-    # to add in: user
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
+    user: Mapped[User] = relationship(back_populates="lists")
 
 
 class ToDoItem(db.Model):
