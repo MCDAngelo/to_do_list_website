@@ -21,6 +21,6 @@ class User(db.Model, UserMixin):
     created_at: Mapped[dt.datetime] = mapped_column(
         DateTime, nullable=False, unique=False
     )
-    email: Mapped[str] = mapped_column(String(100), nullable=True)
+    email: Mapped[str] = mapped_column(String(100), unique=True, nullable=True)
     hashed_password: Mapped[str] = mapped_column(String(150), nullable=True)
     lists: Mapped[List[ToDoList]] = relationship(back_populates="user")

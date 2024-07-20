@@ -9,7 +9,10 @@
 
     <!-- Make this only appear to users that are logged in-->
     <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
-      <li><a href={{ url_for("public.new_list") }} class="nav-link px-2">Your Lists</a></li>
+      <li><a href={{ url_for("public.new_list") }} class="nav-link px-2">New List</a></li>
+      {% if current_user.is_authenticated: %}
+      <li><a href={{ url_for("user.users_lists") }} class="nav-link px-2">Your Lists</a></li>
+      {% endif %}
     </ul>
     <div class="col-md-3 text-end">
       {% if not current_user.is_authenticated: %}

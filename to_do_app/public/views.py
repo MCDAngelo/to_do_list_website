@@ -1,7 +1,7 @@
 import datetime as dt
 from uuid import uuid4
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
-from flask_login import login_user, login_required, logout_user
+from flask_login import current_user, login_user, login_required, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from to_do_app.public.models import ToDoList, ToDoItem
@@ -29,15 +29,20 @@ def new_list():
     new_list_form = NewItem()
     if request.method == "POST":
         ts = dt.datetime.now().replace(microsecond=0)
-        new_user = User(  # type: ignore[call-arg]
-            id=uuid4().hex,
-            created_at=ts,
-        )
+        if current_user.is_authenticated:
+            user = db.get_or_404(User, current_user.id)
+        else:
+            user = User(  # type: ignore[call-arg]
+                id=uuid4().hex,
+                created_at=ts,
+            )
+            db.session.add(user)
+            session["active_user_id"] = user.id
         new_list = ToDoList(  # type: ignore[call-arg]
             id=uuid4().hex,
             title=f"My List - {ts}",
             created_at=ts,
-            user_id=new_user.id,
+            user_id=user.id,
         )
         new_item = ToDoItem(  # type: ignore[call-arg]
             id=uuid4().hex,
@@ -47,12 +52,10 @@ def new_list():
             created_at=ts,
             last_updated=ts,
         )
-        session["active_user_id"] = new_user.id
-        new_user.lists.append(new_list)
+        user.lists.append(new_list)
         new_list.items.append(new_item)
         db.session.add(new_list)
         db.session.add(new_item)
-        db.session.add(new_user)
         db.session.commit()
         return redirect(url_for("public.load_list", list_id=new_list.id))
     return render_template("new_list.html", form=new_list_form)
@@ -200,39 +203,43 @@ def register():
     reg_form = RegistrationForm()
     if reg_form.validate_on_submit():
         user_id = session.get("active_user_id", None)
+        email = reg_form.email.data
+        existing_user = db.session.execute(
+            db.select(User).where(User.email == email)
+        ).scalar()
         if reg_form.password.data != reg_form.confirm_password.data:
             flash("The passwords do not match, try again.")
             return redirect(url_for("public.register"))
-        email = reg_form.email.data
-        if db.session.execute(db.select(User).where(User.email == email)):
+        elif existing_user:
             flash(
                 "You already have an account registered with this email, login instead!"
             )
             return redirect(url_for("public.login"))
-        hashed_pswd = generate_password_hash(
-            password=reg_form.password.data,
-            method="pbkdf2:sha256",
-            salt_length=8,
-        )
-        if user_id is None:
-            user = User(  # type: ignore[call-arg]
-                id=uuid4().hex,
-                email=email,
-                hashed_password=hashed_pswd,
-                created_at=dt.datetime.now().replace(microsecond=0),
+        else:
+            hashed_pswd = generate_password_hash(
+                password=reg_form.password.data,
+                method="pbkdf2:sha256",
+                salt_length=8,
             )
-            db.session.add(user)
-        else:
-            user = db.get_or_404(User, user_id)
-            user.email = email
-            user.hashed_password = hashed_pswd
-        db.session.commit()
-        login_user(user)
-        list_id = session.get("active_list_id", None)
-        if list_id is not None:
-            return redirect(url_for("public.load_list", list_id=list_id))
-        else:
-            return redirect(url_for("public.homepage"))
+            if user_id is None:
+                user = User(  # type: ignore[call-arg]
+                    id=uuid4().hex,
+                    email=email,
+                    hashed_password=hashed_pswd,
+                    created_at=dt.datetime.now().replace(microsecond=0),
+                )
+                db.session.add(user)
+            else:
+                user = db.get_or_404(User, user_id)
+                user.email = email
+                user.hashed_password = hashed_pswd
+            db.session.commit()
+            login_user(user)
+            list_id = session.get("active_list_id", None)
+            if list_id is not None:
+                return redirect(url_for("public.load_list", list_id=list_id))
+            else:
+                return redirect(url_for("public.homepage"))
 
     return render_template("registration.html", form=reg_form)
 
@@ -241,4 +248,5 @@ def register():
 @login_required
 def logout():
     logout_user()
+    session.clear()
     return redirect(url_for("public.homepage"))

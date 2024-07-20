@@ -6,7 +6,7 @@ from flask_bootstrap import Bootstrap5
 
 from to_do_app.database import db
 from to_do_app.extensions import csrf, login_manager
-from to_do_app import public
+from to_do_app import public, user
 
 
 def create_app(config_object="to_do_app.settings"):
@@ -28,7 +28,7 @@ def register_extensions(app):
 
 def register_blueprints(app):
     app.register_blueprint(public.views.blueprint)
-    # app.register_blueprint(user.views.blueprint)
+    app.register_blueprint(user.views.blueprint)
     return None
 
 
