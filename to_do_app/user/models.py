@@ -1,6 +1,7 @@
 import datetime as dt
 from typing import List, TYPE_CHECKING
 
+from flask_login import UserMixin
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import DateTime, String
 
@@ -12,7 +13,7 @@ else:
     ToDoList = "ToDoList"
 
 
-class User(db.Model):
+class User(db.Model, UserMixin):
     __tablename__ = "users"
     id: Mapped[str] = mapped_column(
         String, primary_key=True, nullable=False, unique=True

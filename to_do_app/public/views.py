@@ -1,15 +1,22 @@
 import datetime as dt
 from uuid import uuid4
-from flask import Blueprint, redirect, render_template, request, session, url_for
-from werkzeug.security import generate_password_hash
+from flask import Blueprint, flash, redirect, render_template, request, session, url_for
+from flask_login import login_user, login_required, logout_user
+from werkzeug.security import check_password_hash, generate_password_hash
 
 from to_do_app.public.models import ToDoList, ToDoItem
 from to_do_app.public.forms import ExistingItem, ListTitle, NewItem
 from to_do_app.database import db
-from to_do_app.user.forms import RegistrationForm
+from to_do_app.extensions import login_manager
+from to_do_app.user.forms import LoginForm, RegistrationForm
 from to_do_app.user.models import User
 
 blueprint = Blueprint("public", __name__)
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return db.get_or_404(User, user_id)
 
 
 @blueprint.route("/")
@@ -147,7 +154,6 @@ def update_list_title():
 
 @blueprint.route("/move_item/<string:item_id>/<string:direction>", methods=["POST"])
 def move_item(item_id, direction):
-    print(f"moving item {item_id} {direction} one spot")
     if direction == "up":
         adj = -1
     elif direction == "down":
@@ -170,9 +176,23 @@ def move_item(item_id, direction):
     return redirect(url_for("public.load_list", list_id=selected_item.list_id))
 
 
-@blueprint.route("/login")
+@blueprint.route("/login", methods=["GET", "POST"])
 def login():
-    return render_template("index.html")
+    login_form = LoginForm()
+    if login_form.validate_on_submit():
+        email = login_form.email.data
+        pswd = login_form.password.data
+        user = db.session.execute(db.select(User).where(User.email == email)).scalar()
+        if not user:
+            flash("No account found with this email, try again or register")
+            return redirect(url_for("public.login"))
+        elif not check_password_hash(user.hashed_password, pswd):
+            flash("Incorrect password, try again.")
+            return redirect(url_for("public.login"))
+        else:
+            login_user(user)
+            return redirect(url_for("public.homepage"))
+    return render_template("login.html", form=login_form)
 
 
 @blueprint.route("/register/", methods=["GET", "POST"])
@@ -181,30 +201,44 @@ def register():
     if reg_form.validate_on_submit():
         user_id = session.get("active_user_id", None)
         if reg_form.password.data != reg_form.confirm_password.data:
-            # flash error
-            pass
+            flash("The passwords do not match, try again.")
+            return redirect(url_for("public.register"))
         email = reg_form.email.data
         if db.session.execute(db.select(User).where(User.email == email)):
-            # flash error
-            pass
+            flash(
+                "You already have an account registered with this email, login instead!"
+            )
+            return redirect(url_for("public.login"))
         hashed_pswd = generate_password_hash(
             password=reg_form.password.data,
             method="pbkdf2:sha256",
             salt_length=8,
         )
         if user_id is None:
-            new_user = User(  # type: ignore[call-arg]
+            user = User(  # type: ignore[call-arg]
                 id=uuid4().hex,
                 email=email,
                 hashed_password=hashed_pswd,
                 created_at=dt.datetime.now().replace(microsecond=0),
             )
-            db.session.add(new_user)
+            db.session.add(user)
         else:
             user = db.get_or_404(User, user_id)
             user.email = email
             user.hashed_password = hashed_pswd
         db.session.commit()
-        return redirect(url_for("public.homepage"))
+        login_user(user)
+        list_id = session.get("active_list_id", None)
+        if list_id is not None:
+            return redirect(url_for("public.load_list", list_id=list_id))
+        else:
+            return redirect(url_for("public.homepage"))
 
     return render_template("registration.html", form=reg_form)
+
+
+@blueprint.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for("public.homepage"))

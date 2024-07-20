@@ -9,9 +9,9 @@ password_validators = [DataRequired(), Length(min=8, max=20)]
 class LoginForm(FlaskForm):
     email = EmailField("Email", validators=[DataRequired()])
     password = PasswordField("Password", validators=password_validators)
-    submit = SubmitField("Register")
+    login_submit = SubmitField("Login")
 
 
 class RegistrationForm(LoginForm):
     confirm_password = PasswordField("Confirm Password", validators=password_validators)
-    submit = SubmitField("Login")
+    register_submit = SubmitField("Register")

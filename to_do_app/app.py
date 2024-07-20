@@ -5,7 +5,7 @@ from flask import Flask
 from flask_bootstrap import Bootstrap5
 
 from to_do_app.database import db
-from to_do_app.extensions import csrf
+from to_do_app.extensions import csrf, login_manager
 from to_do_app import public
 
 
@@ -22,6 +22,7 @@ def create_app(config_object="to_do_app.settings"):
 def register_extensions(app):
     db.init_app(app)
     csrf.init_app(app)
+    login_manager.init_app(app)
     return None
 
 
