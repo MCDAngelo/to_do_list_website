@@ -29,7 +29,6 @@ def new_list():
             description=new_list_form.description.data,
             list=new_list,
             position=0,
-            starred=new_list_form.new_starred.data,
             created_at=ts,
             last_updated=ts,
         )
@@ -43,6 +42,7 @@ def new_list():
 
 @blueprint.route("/<string:list_id>/", methods=["GET", "POST"])
 def load_list(list_id):
+    session["active_list_id"] = list_id
     to_do_list = db.get_or_404(ToDoList, list_id)
     list_title_form = ListTitle(list_title=to_do_list.title)
     items = (
@@ -68,73 +68,74 @@ def load_list(list_id):
         title_form=list_title_form,
         new_item_form=new_list_form,
         existing_items=item_forms,
-        list_id=list_id,
     )
 
 
-@blueprint.route("/add_new_item/<string:list_id>/", methods=["POST"])
-def add_new_item(list_id):
-    print(f"list id in public.add_new_item: {list_id}")
-    if request.method == "POST":
-        form = NewItem()
-        if form.validate():
-            ts = dt.datetime.now()
-            item_list = db.get_or_404(ToDoList, list_id)
-            n_items = len(item_list.items)
-            new_item = ToDoItem(  # type: ignore[call-arg]
-                id=uuid4().hex,
-                description=form.description.data,
-                completed=form.completed.data,
-                list=item_list,
-                position=n_items,
-                created_at=ts,
-                last_updated=ts,
-            )
-            db.session.add(new_item)
-            item_list.items.append(new_item)
-            db.session.commit()
-    return redirect(url_for("public.load_list", list_id=list_id))
+@blueprint.route("/add_new_item/", methods=["POST"])
+def add_new_item():
+    list_id = session.get("active_list_id", None)
+    # Add in logic to handle list_id is None
+    if list_id is not None:
+        print(f"list id in public.add_new_item: {list_id}")
+        if request.method == "POST":
+            form = NewItem()
+            if form.validate():
+                ts = dt.datetime.now()
+                item_list = db.get_or_404(ToDoList, list_id)
+                n_items = len(item_list.items)
+                new_item = ToDoItem(  # type: ignore[call-arg]
+                    id=uuid4().hex,
+                    description=form.description.data,
+                    completed=form.completed.data,
+                    list=item_list,
+                    position=n_items,
+                    created_at=ts,
+                    last_updated=ts,
+                )
+                db.session.add(new_item)
+                item_list.items.append(new_item)
+                db.session.commit()
+            return redirect(url_for("public.load_list", list_id=list_id))
 
 
-@blueprint.route("/update_item/<string:list_id>/<string:item_id>/", methods=["POST"])
-def update_item(list_id, item_id):
+@blueprint.route("/update_item/<string:item_id>/", methods=["POST"])
+def update_item(item_id):
     item = db.get_or_404(ToDoItem, item_id)
     item.description = request.form.get("description")
     item.last_updated = dt.datetime.now()
     db.session.commit()
-    return redirect(url_for("public.load_list", list_id=list_id))
+    return redirect(url_for("public.load_list", list_id=item.list_id))
 
 
-@blueprint.route("/delete_item/<string:list_id>/<string:item_id>/", methods=["POST"])
-def delete_item(list_id, item_id):
+@blueprint.route("/delete_item/<string:item_id>/", methods=["POST"])
+def delete_item(item_id):
     item = db.get_or_404(ToDoItem, item_id)
     db.session.delete(item)
     db.session.commit()
-    return redirect(url_for("public.load_list", list_id=list_id))
+    return redirect(url_for("public.load_list", list_id=item.list_id))
 
 
-@blueprint.route("/star_item/<string:list_id>/<string:item_id>/", methods=["POST"])
-def star_item(list_id, item_id):
+@blueprint.route("/star_item/<string:item_id>/", methods=["POST"])
+def star_item(item_id):
     item = db.get_or_404(ToDoItem, item_id)
     item.starred = False if item.starred else True
     item.last_updated = dt.datetime.now()
     db.session.commit()
-    return redirect(url_for("public.load_list", list_id=list_id))
+    return redirect(url_for("public.load_list", list_id=item.list_id))
 
 
-@blueprint.route("/update_list_title/<string:list_id>", methods=["POST"])
-def update_list_title(list_id):
-    to_do_list = db.get_or_404(ToDoList, list_id)
-    print(request.form)
-    to_do_list.title = request.form.get("list_title")
-    db.session.commit()
-    return redirect(url_for("public.load_list", list_id=list_id))
+@blueprint.route("/update_list_title/", methods=["POST"])
+def update_list_title():
+    list_id = session.get("active_list_id", None)
+    if list_id is not None:
+        to_do_list = db.get_or_404(ToDoList, list_id)
+        to_do_list.title = request.form.get("list_title")
+        db.session.commit()
+        return redirect(url_for("public.load_list", list_id=list_id))
 
 
-@blueprint.route(
-    "/move_item/<string:list_id>/<string:item_id>/<string:direction>", methods=["POST"]
-)
-def move_item(list_id, item_id, direction):
+@blueprint.route("/move_item/<string:item_id>/<string:direction>", methods=["POST"])
+def move_item(item_id, direction):
     print(f"moving item {item_id} {direction} one spot")
     if direction == "up":
         adj = -1
@@ -146,7 +147,8 @@ def move_item(list_id, item_id, direction):
     new_position = original_position + adj
     swapped_item = db.session.execute(
         db.select(ToDoItem).where(
-            (ToDoItem.list_id == list_id) & (ToDoItem.position == new_position)
+            (ToDoItem.list_id == selected_item.list_id)
+            & (ToDoItem.position == new_position)
         )
     ).scalar()
     selected_item.position = new_position
@@ -154,7 +156,7 @@ def move_item(list_id, item_id, direction):
     swapped_item.position = original_position
     swapped_item.last_updated = ts
     db.session.commit()
-    return redirect(url_for("public.load_list", list_id=list_id))
+    return redirect(url_for("public.load_list", list_id=selected_item.list_id))
 
 
 @blueprint.route("/login")
