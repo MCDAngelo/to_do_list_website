@@ -1,19 +1,11 @@
-.starred_check:checked+label {
-  color: goldenrod;
+.completed {
+  border-color: #CDCDCD;
+  background-color: #CDCDCD;
+  color: grey;
 }
 
-.tags_check:checked+label {
-  color: darkgray;
-}
-
-.starred_check+label {
-  color: lightgrey;
-}
-
-.tags_check+label {
-  color: lightgrey;
-}
-
-.delete_check+label {
-  color: lightgrey;
+.uncompleted {
+  border-color: "white";
+  background-color: "white";
+  color: black;
 }

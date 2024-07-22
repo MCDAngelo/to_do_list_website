@@ -82,6 +82,7 @@ def load_list(list_id):
         item_form = ExistingItem(obj=item)
         item_form.prefix = item.id
         item_form.starred.value = True if item.starred else False
+        item_form.completed.value = True if item.completed else False
         item_forms.append(item_form)
 
     return render_template(
@@ -107,7 +108,7 @@ def add_new_item():
                 new_item = ToDoItem(  # type: ignore[call-arg]
                     id=uuid4().hex,
                     description=form.description.data,
-                    completed=form.completed.data,
+                    completed=False,
                     list=item_list,
                     position=n_items,
                     created_at=ts,
@@ -136,9 +137,19 @@ def delete_item(item_id):
     return redirect(url_for("public.load_list", list_id=item.list_id))
 
 
+@blueprint.route("/complete_item/<string:item_id>/", methods=["POST"])
+def complete_item(item_id):
+    item = db.get_or_404(ToDoItem, item_id)
+    item.completed = False if item.completed else True
+    item.last_updated = dt.datetime.now()
+    db.session.commit()
+    return redirect(url_for("public.load_list", list_id=item.list_id))
+
+
 @blueprint.route("/star_item/<string:item_id>/", methods=["POST"])
 def star_item(item_id):
     item = db.get_or_404(ToDoItem, item_id)
+    item.description = request.form.get("description")
     item.starred = False if item.starred else True
     item.last_updated = dt.datetime.now()
     db.session.commit()

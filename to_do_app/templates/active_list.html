@@ -14,10 +14,7 @@
   <div class="container">
     <div class="row">
       {{ new_item_form.hidden_tag() }}
-      <div class="col-auto ms-5 pt-4">
-        {{ render_field(new_item_form.completed, style="zoom:2.5")}}
-      </div>
-      <div class="col-sm-8">
+      <div class="col-sm-9">
         {{ render_field(new_item_form.description, placeholder='Start Typing') }}
       </div>
     </div>
@@ -29,13 +26,15 @@
 {% with item_id = list_item.id.data %}
 <form method="POST" formaction="{{ url_for('public.update_item', item_id=item_id) }}">
   <div class="container">
-    <div class="row">
+    <div class="row" >
       {{ list_item.hidden_tag() }}
       <div class="col-auto ms-5 pt-4">
-        {{ render_field(list_item.completed, style="zoom:2.5") }}
+        <button type="submit" name="completed" class="btn btn-outline" formaction="{{ url_for('public.complete_item', item_id=item_id) }}">
+          <h1><i {% if list_item.completed.data == True: %} class="fas fa-check-square" {% else %} class="far fa-check-square"{% endif %}></i></h1>
+        </button>
       </div>
-      <div class="col-sm-7">
-        {{ render_field(list_item.description) }}
+      <div class="col-sm-5">
+        {{ render_field(list_item.description, class="completed" if list_item.completed.data == True else "uncompleted") }}
       </div>
       <div class="col-sm-1 pt-4">
         <button type="submit" name="save_button" hidden value="x" class="btn btn-success" formaction="{{ url_for('public.update_item', item_id=item_id)}}">

@@ -18,7 +18,7 @@ class NewItem(FlaskForm):
 class ExistingItem(FlaskForm):
     id = StringField(validators=[DataRequired()])
     position = IntegerField(validators=[DataRequired()])
-    completed = BooleanField("", render_kw={"class": "form-check-input"})
+    completed = SubmitField("completed", render_kw={"class": "form-check-input"})
     description = StringField(
         "",
         render_kw={
