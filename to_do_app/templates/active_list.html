@@ -30,7 +30,7 @@
       {{ list_item.hidden_tag() }}
       <div class="col-auto ms-5 pt-4">
         <button type="submit" name="completed" class="btn btn-outline" formaction="{{ url_for('public.complete_item', item_id=item_id) }}">
-          <h1><i {% if list_item.completed.data == True: %} class="fas fa-check-square" {% else %} class="far fa-check-square"{% endif %}></i></h1>
+          <h1><i {% if list_item.completed.data == True: %} class="fas fa-check-square" {% else %} class="far fa-square"{% endif %}></i></h1>
         </button>
       </div>
       <div class="col-sm-5">

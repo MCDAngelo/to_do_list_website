@@ -35,6 +35,7 @@ def new_list():
             user = User(  # type: ignore[call-arg]
                 id=uuid4().hex,
                 created_at=ts,
+                email=None,
             )
             db.session.add(user)
             session["active_user_id"] = user.id
@@ -205,8 +206,18 @@ def login():
             return redirect(url_for("public.login"))
         else:
             login_user(user)
+            update_list_user_if_needed(user)
             return redirect(url_for("public.homepage"))
     return render_template("login.html", form=login_form)
+
+
+def update_list_user_if_needed(user):
+    list_id = session.get("active_list_id", None)
+    if list_id is not None:
+        todo_list = db.get_or_404(ToDoList, list_id)
+        if todo_list.user.email is None:
+            todo_list.user = user
+            db.session.commit()
 
 
 @blueprint.route("/register/", methods=["GET", "POST"])
@@ -248,6 +259,7 @@ def register():
             login_user(user)
             list_id = session.get("active_list_id", None)
             if list_id is not None:
+                update_list_user_if_needed(user)
                 return redirect(url_for("public.load_list", list_id=list_id))
             else:
                 return redirect(url_for("public.homepage"))
