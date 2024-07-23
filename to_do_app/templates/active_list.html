@@ -13,9 +13,11 @@
 <form action="{{ url_for('public.add_new_item') }}" method="POST">
   <div class="container">
     <div class="row">
-      {{ new_item_form.hidden_tag() }}
-      <div class="col-sm-9">
-        {{ render_field(new_item_form.description, placeholder='Start Typing') }}
+      <div class="col-sm-1">
+        {{ new_item_form.hidden_tag() }}
+      </div>
+      <div class="col">
+        {{ render_field(new_item_form.description, placeholder='Add another item here') }}
       </div>
     </div>
   </div>
@@ -28,35 +30,35 @@
   <div class="container">
     <div class="row" >
       {{ list_item.hidden_tag() }}
-      <div class="col-auto ms-5 pt-4">
+      <div class="col ms-5 pt-4">
         <button type="submit" name="completed" class="btn btn-outline" formaction="{{ url_for('public.complete_item', item_id=item_id) }}">
-          <h1><i {% if list_item.completed.data == True: %} class="fas fa-check-square" {% else %} class="far fa-square"{% endif %}></i></h1>
+          <h1><i {% if list_item.completed.data == True: %} class="fas fa-check-square"  style="color:blue" {% else %} class="far fa-square"{% endif %}></i></h1>
         </button>
       </div>
       <div class="col-sm-5">
-        {{ render_field(list_item.description, class="completed" if list_item.completed.data == True else "uncompleted") }}
+        {{ render_field(list_item.description, class="completed border-0" if list_item.completed.data == True else "uncompleted border-0") }}
       </div>
-      <div class="col-sm-1 pt-4">
+      <div class="col pt-4">
         <button type="submit" name="save_button" hidden value="x" class="btn btn-success" formaction="{{ url_for('public.update_item', item_id=item_id)}}">
           <i class="fas fa-save"></i>
         </button>
       </div>
-      <div class="col-auto pt-4">
+      <div class="col pt-4">
         <button type="submit" name="starred" class="btn btn-outline" formaction="{{ url_for('public.star_item', item_id=item_id) }}">
           <h3><i class="fas fa-star" {% if list_item.starred.data == True: %} style="color:goldenrod"{% else %} style="color:grey"{% endif %}></i></h3>
         </button>
       </div>
-      <div class="col-auto pt-4">
+      <div class="col pt-4">
         <button type="submit" name="move_up" {% if ns.item_counter == 1: %} disabled {% endif %} class="btn btn-outline border-0" formaction="{{ url_for('public.move_item',item_id=item_id, direction='up') }}">
           <h3><i class="fas fa-arrow-circle-up" style="color:green"></i></h3>
         </button>
       </div>
-      <div class="col-auto pt-4">
+      <div class="col pt-4">
         <button type="submit" name="move_down" {% if ns.item_counter == existing_items|length: %} disabled {% endif %} class="btn btn-outline border-0" formaction="{{ url_for('public.move_item',item_id=item_id, direction='down') }}">
           <h3><i class="fas fa-arrow-circle-down" style="color:orange"></i></h3>
         </button>
       </div>
-      <div class="col-auto pt-4">
+      <div class="col pt-4">
         <button type="submit" name="delete_button" value="x" class="btn btn-danger" formaction="{{ url_for('public.delete_item',item_id=item_id)}}">
           <i class="fas fa-trash-alt"></i>
         </button>
